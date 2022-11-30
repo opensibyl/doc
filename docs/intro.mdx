@@ -1,0 +1,125 @@
+---
+sidebar_position: 1
+---
+
+# 关于
+
+## 这是什么
+
+提供静态分析功能，在不依赖编译的情况下提取源码中的信息。例如，方法签名、范围、类型等：
+
+```go title="some_code.go"
+func ExtractFunction(targetFile string, config *ExtractConfig) ([]*extractor.FunctionFileResult, error) {
+	// YOUR IMPLEMENTATION
+}
+```
+
+简单的命令行：
+
+```bash
+./sibyl extract ./some_code.go
+```
+
+转换为：
+
+![](/img/intro-sample.png)
+
+<details>
+<summary>当然也支持易处理的json格式</summary>
+<code>
+
+```json
+{
+  "path": "extract.go",
+  "language": "GOLANG",
+  "type": "func",
+  "units": [
+    {
+      "name": "ExtractFunction",
+      "receiver": "",
+      "parameters": [
+        {
+          "type": "string",
+          "name": "targetFile"
+        },
+        {
+          "type": "*ExtractConfig",
+          "name": "config"
+        }
+      ],
+      "returns": [
+        {
+          "type": "[]*extractor.FunctionFileResult",
+          "name": ""
+        },
+        {
+          "type": "error",
+          "name": ""
+        }
+      ],
+      "span": {
+        "start": {
+          "row": 18,
+          "column": 0
+        },
+        "end": {
+          "row": 46,
+          "column": 1
+        }
+      },
+      "extras": null
+    }
+  ]
+}
+```
+</code>
+</details>
+
+你可以用极低的成本，在几秒内将你的整个仓库进行完全的静态解析。
+
+## 有什么用
+
+在很多没有编译环境的时候我们同样需要一些代码元信息来辅助决策，例如最常见的 git diff：
+
+```text
+diff --git a/cmd/sibyl/root.go b/cmd/sibyl/root.go
+index 3bf552b..339495a 100644
+--- a/cmd/sibyl/root.go
++++ b/cmd/sibyl/root.go
+@@ -1,9 +1,9 @@
+ package main
+ 
+ import (
+-	"fmt"
+-	"github.com/spf13/cobra"
+ 	"log"
++
++	"github.com/spf13/cobra"
+ )
+ 
+ var rootCmd = &cobra.Command{
+@@ -11,7 +11,7 @@
+ var rootCmd = &cobra.Command{
+ 	Short: "sibyl cmd",
+ 	Long:  "sibyl cmd",
+ 	Run: func(cmd *cobra.Command, args []string) {
+-		fmt.Println("Root cmd from sibyl 2")
++		cmd.Help()
+ 	},
+ }
+```
+
+这很难阅读。通常我们利用 git diff 能做到的，最多就是知悉某个文件在哪些行上发生了更改，而这些行背后到底带有什么实际意义无从知晓。
+
+而通过 sibyl 提供的元信息你可以：
+
+```bash
+git diff HEAD~1 HEAD > hello.patch
+
+./sibyl diff --src . --patch ./hello.patch
+```
+
+很轻松得到这些行背后代表了什么：
+
+![](/img/intro-diff-simple.png)
+
