@@ -6,7 +6,7 @@ sidebar_position: 1
 
 ## 这是什么
 
-提供静态分析功能，在不依赖编译的情况下提取源码中的信息。例如，方法签名、范围、类型等：
+sibyl 提供静态分析功能，在不依赖编译的情况下提取源码中的信息。例如，方法签名、范围、类型等：
 
 ```go title="some_code.go"
 func ExtractFunction(targetFile string, config *ExtractConfig) ([]*extractor.FunctionFileResult, error) {
@@ -14,13 +14,15 @@ func ExtractFunction(targetFile string, config *ExtractConfig) ([]*extractor.Fun
 }
 ```
 
-简单的命令行：
+你可以直接通过简单的命令行使用：
 
 ```bash
-./sibyl extract ./some_code.go
+wget https://github.com/williamfzc/sibyl2/releases/download/v0.6.6/sibyl2_0.6.3_linux_amd64
+chmod +x ./sibyl2_0.6.3_linux_amd64
+./sibyl2_0.6.3_linux_amd64 extract ./some_code.go
 ```
 
-转换为：
+将代码文件转换为：
 
 ![](/img/intro-sample.png)
 
@@ -75,7 +77,7 @@ func ExtractFunction(targetFile string, config *ExtractConfig) ([]*extractor.Fun
 </code>
 </details>
 
-你可以用极低的成本，在几秒内将你的整个仓库进行完全的静态解析。
+你可以用极低的成本，在几秒内将你的整个仓库进行完全的静态解析，供进一步分析。
 
 ## 有什么用
 
@@ -123,3 +125,10 @@ git diff HEAD~1 HEAD > hello.patch
 
 ![](/img/intro-diff-simple.png)
 
+甚至，找到这些方法被哪些方法引用，又引用了什么方法？
+
+
+
+在此之上，你可以将你整个仓库，转换成一张快照图，供后续分析。
+
+他被专门设计用于与研发流程绑定与赋能，所以在使用上非常简单与灵活。
