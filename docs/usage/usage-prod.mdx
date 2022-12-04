@@ -3,3 +3,99 @@ sidebar_position: 3
 ---
 
 # 使用 - 服务化
+
+服务器模式是我们重点维护的模式。我们希望它能够被无缝集成到你的流水线内，而不需要做过多修改。
+
+## 下载
+
+同命令行模式。
+
+## 快速试用
+
+为避免劝退用户，我们提供了无中间件的模式，供用户快速试用。
+但需要注意，这种模式的数据会被储存在内存中，不会持久化，请不要在生产环境中使用。
+
+### 启动服务端
+
+```
+./sibyl server
+```
+
+你可以看到，你的服务已经启动了。
+
+```
+[GIN-debug] GET    /api/v1/file              --> github.com/williamfzc/sibyl2/pkg/server.HandleFileQuery (3 handlers)
+[GIN-debug] GET    /api/v1/func              --> github.com/williamfzc/sibyl2/pkg/server.HandleFunctionsQuery (3 handlers)
+[GIN-debug] GET    /api/v1/funcctx           --> github.com/williamfzc/sibyl2/pkg/server.HandleFunctionCtxQuery (3 handlers)
+[GIN-debug] POST   /api/v1/func              --> github.com/williamfzc/sibyl2/pkg/server.HandleRepoFuncUpload (3 handlers)
+[GIN-debug] POST   /api/v1/funcctx           --> github.com/williamfzc/sibyl2/pkg/server.HandleFunctionContextUpload (3 handlers)
+[GIN-debug] GET    /api/v1/admin/upload/status --> github.com/williamfzc/sibyl2/pkg/server.HandleStatusUpload (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :9876
+```
+
+你可以直接打开 http://127.0.0.1:9876/swagger/index.html#/ 查看接口文档。
+
+### 扫描代码仓
+
+```
+./sibyl upload --src . --withCtx
+```
+
+看到下列日志即可代表上传完成。
+
+```
+{"level":"info","ts":1670140951.991765,"caller":"upload/cmd_upload.go:171","msg":"upload batch: 200 - 220"}
+{"level":"info","ts":1670140952.001775,"caller":"upload/cmd_upload.go:171","msg":"upload batch: 220 - 240"}
+{"level":"info","ts":1670140952.0041962,"caller":"upload/cmd_upload.go:90","msg":"upload graph finished"}
+{"level":"info","ts":1670140952.0042171,"caller":"upload/cmd_upload.go:93","msg":"upload finished"}
+```
+
+### 查看结果
+
+![](/img/usage-swagger.png)
+
+通常你只需要关注五个接口：
+
+- /repo：用于查询当前一共有哪些代码仓
+- /rev：用于查询指定代码仓名下的版本
+- /file：查询特定仓特定版本下的文件列表
+- /func：函数信息查询
+- /funcctx：函数信息及上下文查询
+
+## 推荐使用
+
+综合考虑，在官方实现中我们使用 [neo4j](https://github.com/neo4j/neo4j) 作为后端。
+
+### docker
+
+提供了 compose 文件用于启动整套服务。你可以在源码仓库中找到 docker-compose.yml 供参考，类似这样：
+
+```yml
+version: "3.9"
+services:
+  sibyl_server:
+    image: "williamfzc/sibyl2"
+    ports:
+      - "9876:9876"
+    command: "/app/sibyl server --uri bolt://neo4j:7687 --user neo4j --pwd williamfzc --workers 128 --queueSize 1024 &"
+    depends_on:
+      - "neo4j"
+  neo4j:
+    image: "neo4j:5-community"
+    ports:
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/williamfzc
+```
+
+可以结合实际场合自行调整。如果你使用 K8S，你可以使用 [kompose](https://github.com/kubernetes/kompose) 将其转换为 K8S 格式。
+
+### 手动部署
+
+neo4j 的原生部署也极其方便，你可以非常方便地通过 neo4j desktop 跑起来。在你搭建完成后，可以轻松与 sibyl 建立连接：
+
+```bash
+./sibyl server --uri bolt://127.0.0.1:7687 --user neo4j --pwd williamfzc
+```

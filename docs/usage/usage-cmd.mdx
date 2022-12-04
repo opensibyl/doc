@@ -3,3 +3,192 @@ sidebar_position: 1
 ---
 
 # 使用 - 命令行
+
+命令行是最简单的使用该项目的方式。我们认为应该开箱即用的功能都会包含在此处。
+
+## 下载
+
+你可以在 release 页面上下载到你需要的二进制文件。
+
+https://github.com/williamfzc/sibyl2/releases
+
+## 使用
+
+### 快照功能
+
+```
+./sibyl extract --src . --output hello.json
+```
+
+只需要几秒：
+
+```
+$ ./sibyl extract --src . --output hello.json
+{"level":"info","ts":1670138890.5306911,"caller":"sibyl2/extract_fs.go:92","msg":"no specific lang found, do the guess in: /Users/fengzhangchi/github_workspace/sibyl2"}
+{"level":"info","ts":1670138890.5596569,"caller":"sibyl2/extract_fs.go:97","msg":"I think it is: GOLANG"}
+{"level":"info","ts":1670138890.5836658,"caller":"core/runner.go:22","msg":"valid file count: 55"}
+{"level":"info","ts":1670138890.6657321,"caller":"sibyl2/extract_fs.go:76","msg":"cost: 135 ms"}
+{"level":"info","ts":1670138890.669896,"caller":"extract/cmd_extract.go:60","msg":"file has been saved to: hello.json"}
+```
+
+你的快照就生成好了。
+
+```json title="hello.json"
+[
+  {
+    "path": "analyze.go",
+    "language": "GOLANG",
+    "type": "func",
+    "units": [
+      {
+        "name": "AnalyzeFuncGraph",
+        "receiver": "",
+        "parameters": [
+          {
+            "type": "[]*extractor.FunctionFileResult",
+            "name": "funcFiles"
+          },
+          {
+            "type": "[]*extractor.SymbolFileResult",
+            "name": "symbolFiles"
+          }
+        ],
+        "returns": [
+          {
+            "type": "*FuncGraph",
+            "name": ""
+          },
+          {
+            "type": "error",
+            "name": ""
+          }
+        ],
+        "span": {
+          "start": {
+            "row": 11,
+            "column": 0
+          },
+          "end": {
+            "row": 80,
+            "column": 1
+          }
+        },
+        "extras": {}
+      }
+    ]
+  },
+  ...
+]
+```
+
+## 精准diff
+
+```
+$ ./sibyl diff --from HEAD~1 --to HEAD --output hello1.json
+```
+
+我们希望他与原生的git一样简单。
+
+```
+$ ./sibyl diff --from HEAD~1 --to HEAD --output hello1.json
+{"level":"info","ts":1670138961.6722848,"caller":"diff/cmd_diff.go:33","msg":"diff with rev"}
+{"level":"info","ts":1670138961.6904771,"caller":"sibyl2/extract_fs.go:92","msg":"no specific lang found, do the guess in: /Users/fengzhangchi/github_workspace/sibyl2"}
+{"level":"info","ts":1670138961.7278562,"caller":"sibyl2/extract_fs.go:97","msg":"I think it is: GOLANG"}
+{"level":"info","ts":1670138961.765766,"caller":"core/runner.go:22","msg":"valid file count: 55"}
+{"level":"info","ts":1670138961.850541,"caller":"sibyl2/extract_fs.go:76","msg":"cost: 160 ms"}
+{"level":"info","ts":1670138961.850601,"caller":"sibyl2/extract_fs.go:92","msg":"no specific lang found, do the guess in: /Users/fengzhangchi/github_workspace/sibyl2"}
+{"level":"info","ts":1670138961.8743942,"caller":"sibyl2/extract_fs.go:97","msg":"I think it is: GOLANG"}
+{"level":"info","ts":1670138961.89634,"caller":"core/runner.go:22","msg":"valid file count: 55"}
+{"level":"info","ts":1670138961.9757419,"caller":"sibyl2/extract_fs.go:76","msg":"cost: 125 ms"}
+{"level":"info","ts":1670138962.001007,"caller":"diff/cmd_diff.go:75","msg":"file has been saved to: hello1.json"}
+```
+
+就ok了：
+
+```json title="hello1.json"
+{
+  "fragments": [
+    {
+      "path": "pkg/server/admin_s.go",
+      "lines": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "functions": [
+        {
+          "name": "HandleStatusUpload",
+          "receiver": "",
+          "parameters": [
+            {
+              "type": "*gin.Context",
+              "name": "c"
+            }
+          ],
+          "returns": null,
+          "span": {
+            "start": {
+              "row": 17,
+              "column": 0
+            },
+            "end": {
+              "row": 23,
+              "column": 1
+            }
+          },
+          "extras": {},
+          "path": "pkg/server/admin_s.go",
+          "language": "GOLANG",
+          "calls": null,
+          "reverseCalls": [
+            {
+              "name": "Execute",
+              "receiver": "",
+              "parameters": [
+                {
+                  "type": "ExecuteConfig",
+                  "name": "config"
+                }
+              ],
+              "returns": null,
+              "span": {
+                "start": {
+                  "row": 67,
+                  "column": 0
+                },
+                "end": {
+                  "row": 96,
+                  "column": 1
+                }
+              },
+              "extras": {},
+              "path": "pkg/server/app.go",
+              "language": "GOLANG"
+            }
+          ]
+        }
+      ]
+    },
+    ...
+```

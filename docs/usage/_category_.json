@@ -1,7 +1,7 @@
 {
     "position": 2,
     "label": "使用",
-    "collapsed": true,
+    "collapsed": false,
     "link": {
       "type": "generated-index",
       "title": "使用"
