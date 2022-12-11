@@ -8,8 +8,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'OpenSibyl Documentation',
   tagline: 'Parsing, analyzing source code across many languages, and extracting their metadata easily.',
-  url: 'http://github.com',
-  baseUrl: '/',
+  url: 'https://opensibyl.github.io',
+  baseUrl: '/doc/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
