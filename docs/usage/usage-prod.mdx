@@ -10,10 +10,13 @@ sidebar_position: 3
 
 同命令行模式。
 
-## 快速试用
+## 单节点模式
 
-为避免劝退用户，我们提供了无中间件的模式，供用户快速试用。
-但需要注意，这种模式的数据会被储存在内存中，不会持久化，请不要在生产环境中使用。
+在大部分情况下（除了公司级中台），单节点情况可以满足你的绝大多数需求。
+
+内置的队列与badger数据库，使你也可以轻松在办公电脑上部署并保持良好的性能。
+
+默认情况下你的数据会被持久化在 `./.sibyl2storage` 中。
 
 ### 启动服务端
 
@@ -64,38 +67,17 @@ Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-
 - /func：函数信息查询
 - /funcctx：函数信息及上下文查询
 
-## 推荐使用
+## 多节点模式
 
-综合考虑，在官方实现中我们使用 [neo4j](https://github.com/neo4j/neo4j) 作为后端。
+对于一些企业级中台，有横向扩容与分布式存储管理的需求。
 
-### docker
+![](https://user-images.githubusercontent.com/13421694/207398617-ee015eea-b9bd-4b57-8479-4c690246be17.png)
 
-提供了 compose 文件用于启动整套服务。你可以在源码仓库中找到 docker-compose.yml 供参考，类似这样：
+https://github.com/opensibyl/sibyl2/issues/2
 
-```yml
-version: "3.9"
-services:
-  sibyl_server:
-    image: "williamfzc/sibyl2"
-    ports:
-      - "9876:9876"
-    command: "/app/sibyl server --uri bolt://neo4j:7687 --user neo4j --pwd williamfzc --workers 128 --queueSize 1024 &"
-    depends_on:
-      - "neo4j"
-  neo4j:
-    image: "neo4j:5-community"
-    ports:
-      - "7687:7687"
-    environment:
-      - NEO4J_AUTH=neo4j/williamfzc
-```
+迭代方向如下：
 
-可以结合实际场合自行调整。如果你使用 K8S，你可以使用 [kompose](https://github.com/kubernetes/kompose) 将其转换为 K8S 格式。
+- 横扩：提供标准kafka connector对接
+- 存储：**我们没有想好。** 但基于badger与neo4j，考虑TiKV与各类分布式图数据库。
 
-### 手动部署
-
-neo4j 的原生部署也极其方便，你可以非常方便地通过 neo4j desktop 跑起来。在你搭建完成后，可以轻松与 sibyl 建立连接：
-
-```bash
-./sibyl server --uri bolt://127.0.0.1:7687 --user neo4j --pwd williamfzc
-```
+欢迎通过issue交流。
