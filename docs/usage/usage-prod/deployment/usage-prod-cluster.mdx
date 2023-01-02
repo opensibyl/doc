@@ -1,0 +1,129 @@
+---
+sidebar_position: 2
+---
+
+# 集群
+
+集群模式被设计用于生产级别的场景。代价是他需要一些额外的中间件。
+
+## 说在前面
+
+- 首先感谢您考虑在严肃场景中使用opensibyl；
+- 接下来的描述中，将假设您具备一定的后端与架构知识，便于描述；
+- 集群模式的问题将保持最高优先级，可以通过 [issue面板](https://github.com/opensibyl/sibyl2/issues) 与我们联系；
+- 架构千人千面，难免有考虑不周之处，还望多提意见；
+
+## 定位参考
+
+![](https://user-images.githubusercontent.com/13421694/207398617-ee015eea-b9bd-4b57-8479-4c690246be17.png)
+
+https://github.com/opensibyl/sibyl2/issues/2
+
+## 思考与选型
+
+集群模式解决两个问题：
+
+- 流量承压：MQ、读写分离
+- 数据持久化：DB
+
+这两个问题进一步解决的问题是，将sibyl2服务变为无状态。
+
+![](https://user-images.githubusercontent.com/13421694/207405128-d0f40bad-141d-46fb-a57f-78e3e38827b1.png)
+
+考虑如上，sibyl2的MQ与DB都是可替换的，经过适配即可适应不同的场景。官方内置的开箱即用选型如下：
+
+- MQ：Kafka
+- DB：TiKV
+
+## 使用
+
+你可以先以单节点模式启动：
+
+```
+./sibyl server
+```
+
+杀死进程。你会发现本地出现了配置文件 `./sibyl-server-config.json`：
+
+```json
+{
+  "binding": {
+    "badgerpath": "./sibyl2-badger-storage",
+    "dbtype": "BADGER",
+    "neo4jpassword": "neo4j",
+    "neo4juri": "bolt://localhost:7687",
+    "neo4jusername": "neo4j",
+    "tikvaddrs": "127.0.0.1:2379"
+  },
+  "queue": {
+    "kafkaaddrs": "10.177.65.230:9092",
+    "kafkaclazzconsumergroup": "sibyl-consumer-clazz",
+    "kafkaclazztopic": "sibyl-upload-clazz",
+    "kafkafuncconsumergroup": "sibyl-consumer-func",
+    "kafkafuncctxconsumergroup": "sibyl-consumer-funcctx",
+    "kafkafuncctxtopic": "sibyl-upload-funcctx",
+    "kafkafunctopic": "sibyl-upload-func",
+    "queuetype": "MEMORY"
+  },
+  "server": {
+    "mode": "ALL",
+    "port": 9876
+  },
+  "worker": {
+    "workercount": 64,
+    "workerqueuesize": 512000
+  }
+}
+```
+
+你可以按需开始组件替换。
+
+### 替换kafka
+
+如果你认为你的场景内并发情况较多，可以将MQ的部分交给kafka。你只需要：
+
+```json
+"queue": {
+    "kafkaaddrs": "10.177.65.230:9092",
+    "queuetype": "KAFKA"
+},
+```
+
+用原命令启动即可。你会发现kafka中已经出现了对应的topic。
+
+### 读写分离
+
+这种场景下你当然不希望实例既发消息又消费消息。这里我们将 webserver 与 worker 做了分离，以便分开部署。你只需要应用不同的配置即可：
+
+webserver 不会消费消息，提供web接口供查询与上传：
+
+```json
+"server": {
+    "mode": "GATEWAY",
+    "port": 9876
+},
+```
+
+worker 会消费消息，没有web接口：
+
+```json
+"server": {
+    "mode": "WORKER",
+    "port": 9876
+},
+```
+
+### 替换数据库
+
+TiKV 是TiDB的底层引擎，非常成熟。可以参考 [tikv-in-5-minutes](https://tikv.org/docs/dev/concepts/tikv-in-5-minutes/#set-up-a-local-tikv-cluster-with-the-default-options) 部署。
+
+部署完成后，你同样只需要微调配置：
+
+```json
+"binding": {
+    "dbtype": "TIKV",
+    "tikvaddrs": "127.0.0.1:2379"
+},
+```
+
+至此，你的 sibyl2 服务即可弹性伸缩用于兼容各种常见场景。

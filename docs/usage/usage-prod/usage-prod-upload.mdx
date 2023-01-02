@@ -1,0 +1,18 @@
+---
+sidebar_position: 3
+---
+
+# 仓库采集
+
+```
+./sibyl upload --src . --withCtx
+```
+
+看到下列日志即可代表上传完成。
+
+```
+{"level":"info","ts":1670140951.991765,"caller":"upload/cmd_upload.go:171","msg":"upload batch: 200 - 220"}
+{"level":"info","ts":1670140952.001775,"caller":"upload/cmd_upload.go:171","msg":"upload batch: 220 - 240"}
+{"level":"info","ts":1670140952.0041962,"caller":"upload/cmd_upload.go:90","msg":"upload graph finished"}
+{"level":"info","ts":1670140952.0042171,"caller":"upload/cmd_upload.go:93","msg":"upload finished"}
+```

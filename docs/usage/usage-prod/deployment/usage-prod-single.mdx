@@ -1,0 +1,43 @@
+---
+sidebar_position: 1
+---
+
+# 单节点
+
+服务器模式是我们重点维护的模式。我们希望它能够被无缝集成到你的流水线内，而不需要做过多修改。
+
+## 下载
+
+你可以在 release 页面上下载到你需要的二进制文件。
+
+https://github.com/williamfzc/sibyl2/releases
+
+## 使用
+
+如果你的场景对可靠性要求不高，单节点情况可以满足你的绝大多数需求：
+
+- 在办公电脑、嵌入式设备上一键部署并保持良好的性能；
+- 同样具备基础的抗压能力与持久化能力；
+- 默认情况下你的数据会被持久化在 `./.sibyl2storage` 中；
+
+### 启动服务端
+
+```
+./sibyl server
+```
+
+你可以看到，你的服务已经启动了。
+
+```
+[GIN-debug] GET    /api/v1/file              --> github.com/williamfzc/sibyl2/pkg/server.HandleFileQuery (3 handlers)
+[GIN-debug] GET    /api/v1/func              --> github.com/williamfzc/sibyl2/pkg/server.HandleFunctionsQuery (3 handlers)
+[GIN-debug] GET    /api/v1/funcctx           --> github.com/williamfzc/sibyl2/pkg/server.HandleFunctionCtxQuery (3 handlers)
+[GIN-debug] POST   /api/v1/func              --> github.com/williamfzc/sibyl2/pkg/server.HandleRepoFuncUpload (3 handlers)
+[GIN-debug] POST   /api/v1/funcctx           --> github.com/williamfzc/sibyl2/pkg/server.HandleFunctionContextUpload (3 handlers)
+[GIN-debug] GET    /api/v1/admin/upload/status --> github.com/williamfzc/sibyl2/pkg/server.HandleStatusUpload (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :9876
+```
+
+不需要额外配置数据库与中间件，一切就完成了。你现在可以开始上传数据了。

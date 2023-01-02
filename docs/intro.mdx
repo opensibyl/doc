@@ -2,885 +2,103 @@
 sidebar_position: 1
 ---
 
-# 关于
+# 关于 opensibyl
+
+Bring your plain code alive with tiny effort.
 
 ## 这是什么
 
 ![](/img/intro-summary.png)
 
-一个跨语言、快速、易于使用的静态源码信息提取工具。
+一套跨语言、快速、易于使用的静态源码信息提取工具，旨在以开箱即用的方式，为研发流程中的各个阶段提供源代码的逻辑信息。
 
 ![](/img/intro-upload.gif)
 
-你可以用极低的成本，在几秒内将你的整个仓库进行完全的静态解析，并进行存储，供进一步分析。
+你可以用极低的成本，在几秒内将你的整个仓库进行完全的静态解析，并进行存储。开发者可以在之后的任意时间，轻易洞悉某个代码库、某个版本、某个文件、某些行的背后到底代表着什么。
 
-![](/img/intro-swagger.png)
+## 开箱即用
 
-并提供了完备的接口，开发者可以在之后的任意时间，轻易洞悉某个代码库、某个版本、某个文件、某些行的背后到底代表着什么。以此图为例，我们想查看：
-
-- jvm-sandbox 仓库的 639aae9 版本上
-- GoArrayUtils.java 文件的 18、19 行
-
-![](/img/intro-swagger-resp.png)
-
-包括了代码内的方法信息，以及**方法之间的引用关系**。
-**完整的全仓上传与入库过程，通常只需要不到10秒。**
-而在此之后你可以随时在其他阶段查看，以供进一步的决策。
-
-:::tip
-如果你不喜欢服务端的模式，我们也提供了简单的本地模式。详见《使用》一节。
-:::
-
-## 有什么用
-
-在很多没有编译环境的时候我们同样需要一些代码元信息来辅助决策，例如最常见的 git diff：
-
-```text
-diff --git a/cmd/sibyl/root.go b/cmd/sibyl/root.go
-index 3bf552b..339495a 100644
---- a/cmd/sibyl/root.go
-+++ b/cmd/sibyl/root.go
-@@ -1,9 +1,9 @@
- package main
- 
- import (
--	"fmt"
--	"github.com/spf13/cobra"
- 	"log"
-+
-+	"github.com/spf13/cobra"
- )
- 
- var rootCmd = &cobra.Command{
-@@ -11,7 +11,7 @@
- var rootCmd = &cobra.Command{
- 	Short: "sibyl cmd",
- 	Long:  "sibyl cmd",
- 	Run: func(cmd *cobra.Command, args []string) {
--		fmt.Println("Root cmd from sibyl 2")
-+		cmd.Help()
- 	},
- }
+```
+./sibyl extract --src . --output hello.json
 ```
 
-这很难阅读。通常我们利用 git diff 能做到的，最多就是知悉某个文件在哪些行上发生了更改，而这些行背后到底带有什么实际意义无从知晓。
+只需要几秒：
 
-而通过 sibyl 你可以很轻松得到这些行背后代表了什么：
-
-![](/img/intro-diff-simple.png)
-
-甚至，找到这些方法被哪些方法引用，又引用了什么方法？
-
-![](/img/intro-callgraph.png)
-
-<details>
-<summary>上面的图由 jsoncrack.com 进行可视化，工具原生格式为json。 </summary>
-
-<code>
-
-```json
-{
-  "fragments": [
-    {
-      "path": "pkg/server/binding/binding_mem.go",
-      "functions": [
-        {
-          "name": "newFileStorage",
-          "receiver": "",
-          "parameters": [
-            {
-              "type": "string",
-              "name": "path"
-            }
-          ],
-          "returns": null,
-          "span": {
-            "start": {
-              "row": 43,
-              "column": 0
-            },
-            "end": {
-              "row": 49,
-              "column": 1
-            }
-          },
-          "extras": {},
-          "path": "pkg/server/binding/binding_mem.go",
-          "language": "GOLANG",
-          "calls": null,
-          "reverseCalls": [
-            {
-              "name": "CreateFuncFile",
-              "receiver": "*memDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "*extractor.FunctionFileResult",
-                  "name": "f"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 105,
-                  "column": 0
-                },
-                "end": {
-                  "row": 128,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_mem.go",
-              "language": "GOLANG"
-            }
-          ]
-        },
-        {
-          "name": "CreateFuncContext",
-          "receiver": "*memDriver",
-          "parameters": [
-            {
-              "type": "*WorkspaceConfig",
-              "name": "wc"
-            },
-            {
-              "type": "*sibyl2.FunctionContext",
-              "name": "f"
-            },
-            {
-              "type": "context.Context",
-              "name": "ctx"
-            }
-          ],
-          "returns": [
-            {
-              "type": "error",
-              "name": ""
-            }
-          ],
-          "span": {
-            "start": {
-              "row": 130,
-              "column": 0
-            },
-            "end": {
-              "row": 151,
-              "column": 1
-            }
-          },
-          "extras": {},
-          "path": "pkg/server/binding/binding_mem.go",
-          "language": "GOLANG",
-          "calls": [
-            {
-              "name": "CreateFuncContext",
-              "receiver": "*neo4jDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "*sibyl2.FunctionContext",
-                  "name": "f"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 84,
-                  "column": 0
-                },
-                "end": {
-                  "row": 95,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "GetSignature",
-              "receiver": "*Function",
-              "parameters": null,
-              "returns": [
-                {
-                  "type": "FuncSignature",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 36,
-                  "column": 0
-                },
-                "end": {
-                  "row": 52,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/extractor/object_func.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "Key",
-              "receiver": "*WorkspaceConfig",
-              "parameters": null,
-              "returns": [
-                {
-                  "type": "string",
-                  "name": ""
-                },
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 134,
-                  "column": 0
-                },
-                "end": {
-                  "row": 139,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "newRevUnit",
-              "receiver": "",
-              "parameters": null,
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 28,
-                  "column": 0
-                },
-                "end": {
-                  "row": 33,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_mem.go",
-              "language": "GOLANG"
-            }
-          ],
-          "reverseCalls": [
-            {
-              "name": "CreateFuncContext",
-              "receiver": "*neo4jDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "*sibyl2.FunctionContext",
-                  "name": "f"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 84,
-                  "column": 0
-                },
-                "end": {
-                  "row": 95,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "TestNeo4jDriver_UploadFuncContextWithContext",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*testing.T",
-                  "name": "t"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 78,
-                  "column": 0
-                },
-                "end": {
-                  "row": 104,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j_test.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "HandleFunctionContextUpload",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*gin.Context",
-                  "name": "c"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 41,
-                  "column": 0
-                },
-                "end": {
-                  "row": 71,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/upload_s.go",
-              "language": "GOLANG"
-            }
-          ]
-        },
-        {
-          "name": "CreateWorkspace",
-          "receiver": "*memDriver",
-          "parameters": [
-            {
-              "type": "*WorkspaceConfig",
-              "name": "wc"
-            },
-            {
-              "type": "context.Context",
-              "name": "ctx"
-            }
-          ],
-          "returns": [
-            {
-              "type": "error",
-              "name": ""
-            }
-          ],
-          "span": {
-            "start": {
-              "row": 153,
-              "column": 0
-            },
-            "end": {
-              "row": 165,
-              "column": 1
-            }
-          },
-          "extras": {},
-          "path": "pkg/server/binding/binding_mem.go",
-          "language": "GOLANG",
-          "calls": [
-            {
-              "name": "isWcExisted",
-              "receiver": "*memDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "bool",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 57,
-                  "column": 0
-                },
-                "end": {
-                  "row": 64,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_mem.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "CreateWorkspace",
-              "receiver": "*neo4jDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 353,
-                  "column": 0
-                },
-                "end": {
-                  "row": 372,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "Key",
-              "receiver": "*WorkspaceConfig",
-              "parameters": null,
-              "returns": [
-                {
-                  "type": "string",
-                  "name": ""
-                },
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 134,
-                  "column": 0
-                },
-                "end": {
-                  "row": 139,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "newRevUnit",
-              "receiver": "",
-              "parameters": null,
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 28,
-                  "column": 0
-                },
-                "end": {
-                  "row": 33,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_mem.go",
-              "language": "GOLANG"
-            }
-          ],
-          "reverseCalls": [
-            {
-              "name": "CreateWorkspace",
-              "receiver": "*neo4jDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 353,
-                  "column": 0
-                },
-                "end": {
-                  "row": 372,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "TestNeo4jDriver_InitWorkspace",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*testing.T",
-                  "name": "t"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 24,
-                  "column": 0
-                },
-                "end": {
-                  "row": 40,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j_test.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "TestNeo4jDriver_UploadFile",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*testing.T",
-                  "name": "t"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 42,
-                  "column": 0
-                },
-                "end": {
-                  "row": 76,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j_test.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "HandleRepoFuncUpload",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*gin.Context",
-                  "name": "c"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 11,
-                  "column": 0
-                },
-                "end": {
-                  "row": 39,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/upload_s.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "HandleFunctionContextUpload",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*gin.Context",
-                  "name": "c"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 41,
-                  "column": 0
-                },
-                "end": {
-                  "row": 71,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/upload_s.go",
-              "language": "GOLANG"
-            }
-          ]
-        },
-        {
-          "name": "ReadFunctionContextWithSignature",
-          "receiver": "*memDriver",
-          "parameters": [
-            {
-              "type": "*WorkspaceConfig",
-              "name": "wc"
-            },
-            {
-              "type": "string",
-              "name": "signature"
-            },
-            {
-              "type": "context.Context",
-              "name": "ctx"
-            }
-          ],
-          "returns": [
-            {
-              "type": "*sibyl2.FunctionContext",
-              "name": ""
-            },
-            {
-              "type": "error",
-              "name": ""
-            }
-          ],
-          "span": {
-            "start": {
-              "row": 276,
-              "column": 0
-            },
-            "end": {
-              "row": 290,
-              "column": 1
-            }
-          },
-          "extras": {},
-          "path": "pkg/server/binding/binding_mem.go",
-          "language": "GOLANG",
-          "calls": [
-            {
-              "name": "getRevUnit",
-              "receiver": "*memDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "*revUnit",
-                  "name": ""
-                },
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 78,
-                  "column": 0
-                },
-                "end": {
-                  "row": 88,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_mem.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "ReadFunctionContextWithSignature",
-              "receiver": "*neo4jDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "string",
-                  "name": "signature"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "*sibyl2.FunctionContext",
-                  "name": ""
-                },
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 234,
-                  "column": 0
-                },
-                "end": {
-                  "row": 331,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j.go",
-              "language": "GOLANG"
-            }
-          ],
-          "reverseCalls": [
-            {
-              "name": "ReadFunctionContextWithSignature",
-              "receiver": "*neo4jDriver",
-              "parameters": [
-                {
-                  "type": "*WorkspaceConfig",
-                  "name": "wc"
-                },
-                {
-                  "type": "string",
-                  "name": "signature"
-                },
-                {
-                  "type": "context.Context",
-                  "name": "ctx"
-                }
-              ],
-              "returns": [
-                {
-                  "type": "*sibyl2.FunctionContext",
-                  "name": ""
-                },
-                {
-                  "type": "error",
-                  "name": ""
-                }
-              ],
-              "span": {
-                "start": {
-                  "row": 234,
-                  "column": 0
-                },
-                "end": {
-                  "row": 331,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "TestNeo4jDriver_QueryFunctionContextWithSignature",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*testing.T",
-                  "name": "t"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 182,
-                  "column": 0
-                },
-                "end": {
-                  "row": 200,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/binding/binding_neo4j_test.go",
-              "language": "GOLANG"
-            },
-            {
-              "name": "HandleFunctionCtxQuery",
-              "receiver": "",
-              "parameters": [
-                {
-                  "type": "*gin.Context",
-                  "name": "c"
-                }
-              ],
-              "returns": null,
-              "span": {
-                "start": {
-                  "row": 137,
-                  "column": 0
-                },
-                "end": {
-                  "row": 164,
-                  "column": 1
-                }
-              },
-              "extras": {},
-              "path": "pkg/server/query_s.go",
-              "language": "GOLANG"
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+```
+$ ./sibyl extract --src . --output hello.json
+{"level":"info","ts":1670138890.5306911,"caller":"sibyl2/extract_fs.go:92","msg":"no specific lang found, do the guess in: /Users/fengzhangchi/github_workspace/sibyl2"}
+{"level":"info","ts":1670138890.5596569,"caller":"sibyl2/extract_fs.go:97","msg":"I think it is: GOLANG"}
+{"level":"info","ts":1670138890.5836658,"caller":"core/runner.go:22","msg":"valid file count: 55"}
+{"level":"info","ts":1670138890.6657321,"caller":"sibyl2/extract_fs.go:76","msg":"cost: 135 ms"}
+{"level":"info","ts":1670138890.669896,"caller":"extract/cmd_extract.go:60","msg":"file has been saved to: hello.json"}
 ```
 
-</code>
-</details>
+你的快照就生成好了。
 
-## 定位
+```json title="hello.json"
+[
+  {
+    "path": "analyze.go",
+    "language": "GOLANG",
+    "type": "func",
+    "units": [
+      {
+        "name": "AnalyzeFuncGraph",
+        "receiver": "",
+        "parameters": [
+          {
+            "type": "[]*extractor.FunctionFileResult",
+            "name": "funcFiles"
+          },
+          {
+            "type": "[]*extractor.SymbolFileResult",
+            "name": "symbolFiles"
+          }
+        ],
+        "returns": [
+          {
+            "type": "*FuncGraph",
+            "name": ""
+          },
+          {
+            "type": "error",
+            "name": ""
+          }
+        ],
+        "span": {
+          "start": {
+            "row": 11,
+            "column": 0
+          },
+          "end": {
+            "row": 80,
+            "column": 1
+          }
+        },
+        "extras": {}
+      }
+    ]
+  },
+  ...
+]
+```
 
-我们在日常工作中发现，有大量的平台都需要从源码中提取信息，来辅助决策：
+当然，作为一个底层组件，我们提供了多种使用模式来适应不同严格程度的业务场景。具体可见使用一节。
+
+## 起源
+
+google 利用静态扫描能力，解析增量代码来推导影响范围，以指导他们的单测：
+
+![](/img/intro-google.png)
+
+也有一些公司正在往这个方向迭代：
+
+- [Github](https://github.com/github/semantic)
+- [Codecov](https://about.codecov.io/smart-automated-test-selection/?utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=opensibyl)
+- ... （一些链接找不到了
+
+国内互联网行业其实在几年前就开始往这个方向思考，只是当时我们并没有察觉我们在做这样的事情。
+大量的平台都需要从源码中提取信息，来辅助决策：
 
 - diff推导
 - 精准测试
@@ -889,10 +107,9 @@ index 3bf552b..339495a 100644
 - 需求影响面
 - ...
 
-而他们之间的功能并不互通，语言也各不相同。我们在此之上需要做大量的重复工作，造成了不小的人力浪费。
+而他们之间的功能并不互通，语言也各不相同。如果是支持m门语言、迭代n个工具，我们将需要 m*n 倍的重复工作。这对中后台团队来说是不可接受的。
 
-受google启发：
+![](https://user-images.githubusercontent.com/13421694/207398617-ee015eea-b9bd-4b57-8479-4c690246be17.png)
 
-![](/img/intro-google.png)
-
-我们希望提供一个通用抽象层，为其他平台开发者节约在源码信息提取上的重复工作。
+由此，我们希望提供一个足够可靠的通用抽象层，节约平台开发者在源码信息提取上的重复工作。
+opensibyl计划也脱胎于此。

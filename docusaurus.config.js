@@ -6,8 +6,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'OpenSibyl Documentation',
-  tagline: 'Parsing, analyzing source code across many languages, and extracting their metadata easily.',
+  title: 'OpenSibyl Project',
+  tagline: 'Bring your plain code alive with tiny effort.',
   url: 'https://opensibyl.github.io',
   baseUrl: '/doc/',
   onBrokenLinks: 'throw',
@@ -50,7 +50,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       colorMode: {
-        defaultMode: 'dark'
+        defaultMode: 'light'
       },
       navbar: {
         title: 'OpenSibyl',
