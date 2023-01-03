@@ -23,17 +23,15 @@ https://github.com/opensibyl/sibyl2/issues/2
 
 集群模式解决两个问题：
 
+- 分布式存储：DB
 - 流量承压：MQ、读写分离
-- 数据持久化：DB
-
-这两个问题进一步解决的问题是，将sibyl2服务变为无状态。
 
 ![](https://user-images.githubusercontent.com/13421694/207405128-d0f40bad-141d-46fb-a57f-78e3e38827b1.png)
 
 考虑如上，sibyl2的MQ与DB都是可替换的，经过适配即可适应不同的场景。官方内置的开箱即用选型如下：
 
-- MQ：Kafka
 - DB：TiKV
+- MQ：Kafka
 
 ## 使用
 
@@ -78,7 +76,22 @@ https://github.com/opensibyl/sibyl2/issues/2
 
 你可以按需开始组件替换。
 
-### 替换kafka
+### 替换数据库
+
+TiKV 是TiDB的底层引擎，分布式，非常成熟。可以参考 [tikv-in-5-minutes](https://tikv.org/docs/dev/concepts/tikv-in-5-minutes/#set-up-a-local-tikv-cluster-with-the-default-options) 部署。
+
+部署完成后，你同样只需要微调配置：
+
+```json
+"binding": {
+    "dbtype": "TIKV",
+    "tikvaddrs": "127.0.0.1:2379"
+},
+```
+
+此刻你的数据将被安全地持久化到TiKV中。
+
+### 替换kafka（可选）
 
 如果你认为你的场景内并发情况较多，可以将MQ的部分交给kafka。你只需要：
 
@@ -91,7 +104,7 @@ https://github.com/opensibyl/sibyl2/issues/2
 
 用原命令启动即可。你会发现kafka中已经出现了对应的topic。
 
-### 读写分离
+### 读写分离（可选）
 
 这种场景下你当然不希望实例既发消息又消费消息。这里我们将 webserver 与 worker 做了分离，以便分开部署。你只需要应用不同的配置即可：
 
@@ -110,19 +123,6 @@ worker 会消费消息，没有web接口：
 "server": {
     "mode": "WORKER",
     "port": 9876
-},
-```
-
-### 替换数据库
-
-TiKV 是TiDB的底层引擎，非常成熟。可以参考 [tikv-in-5-minutes](https://tikv.org/docs/dev/concepts/tikv-in-5-minutes/#set-up-a-local-tikv-cluster-with-the-default-options) 部署。
-
-部署完成后，你同样只需要微调配置：
-
-```json
-"binding": {
-    "dbtype": "TIKV",
-    "tikvaddrs": "127.0.0.1:2379"
 },
 ```
 
