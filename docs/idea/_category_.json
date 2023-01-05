@@ -1,9 +1,9 @@
 {
-    "position": 1,
-    "label": "使用",
+    "position": 2,
+    "label": "常见应用",
     "collapsed": false,
     "link": {
       "type": "generated-index",
-      "title": "使用"
+      "title": "常见应用"
     }
 }
