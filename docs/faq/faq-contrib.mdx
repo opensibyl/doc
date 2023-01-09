@@ -2,15 +2,66 @@
 sidebar_position: 2
 ---
 
-# 我想开发该项目
+# 我想参与该项目
 
-感谢你对这个项目感兴趣！
+感谢您对这个项目感兴趣！
+
+## 请注意
+
+### 如果您想提交代码
+
+- 该项目的主要场景是作为底层公用能力存在，以支撑业务、中后台的功能开发
+- 他与具体的业务逻辑是彻底解耦的
+- 需要有较高的可用性与稳定性
+
+所以一些新功能可能不会被接受，例如：
+
+- 非常耗时
+- 解决单一业务问题
+- 与其他服务耦合
+
+之后我们会考虑另建仓库来承载具体业务功能，请谅解。
+
+### 如果您想支持我们
+
+支持开源项目当然不只有编写代码一条路。
+我们非常欢迎各位提出宝贵意见、建议、思考，或给我们 [star](https://github.com/opensibyl/sibyl2) 支持，这些都是对我们的帮助。
+
+欢迎通过 [issue](https://github.com/opensibyl/sibyl2/issues) 与我们沟通。
+
+> 如果有厂商感兴趣，可以考虑捐赠一台云服务器，用于部署最新版本的sibyl，为新来者提供功能的预览：https://github.com/opensibyl/sibyl2/issues/15 。我们会在文档中加入致谢。
+
+## 模块与代码
+
+目前我们重点开发的模块有三个：
+
+### [extractor](https://github.com/opensibyl/sibyl2/tree/master/pkg/extractor)
+
+- 更多的语言支持；
+- 基于现有接口去扩展一门新语言并不复杂；
+- 举例，完整的function、class、symbol支持一共只花了不到500行代码；
+- 而上层的服务、解析、存储、调用链分析都是可以复用的；
+
+### [server](https://github.com/opensibyl/sibyl2/tree/master/pkg/server)
+
+- 更多丰富的接口：
+- 目前我们涵盖的场景有限，如果现有的接口无法满足你的场景，可以考虑增加接口；
+- 如果您觉得接口设计不合理也可以与我们共同讨论；
+
+### [core](https://github.com/opensibyl/sibyl2/blob/master/pkg/extractor/extractor_base.go)
+
+https://github.com/github/semantic/blob/793a876ae45d38a6bd1744e137db71d148081bf1/proto/semantic.proto#L99
+
+- 更多跨语言类型支持；
+- 目前我们主要参照 [semantic.proto] 做类型支持，如果您需要更多类型可考虑扩展；
+- 但注意，某语言特有的概念暂时不会被接受；
+- 当前较需要支持的是调用链：https://github.com/opensibyl/sibyl2/issues/5
+
+为节约您的时间，建议先通过 [issue](https://github.com/opensibyl/sibyl2/issues) 面板沟通。
 
 ## 环境
 
 由于 tree-sitter 的存在，我们需要 cgo 来编译。参考官方教程在机器上安装 g++/gcc 即可。
-
-## 编译
 
 我们使用 make 来打出二进制包。
 
@@ -19,12 +70,3 @@ make
 ```
 
 如果你不喜欢，亦可结合 makefile 中的逻辑，自行编写脚本。
-
-## 模块与代码
-
-目前我们重点开发的模块有两个：
-
-- 更多的语言支持：[extractor](https://github.com/opensibyl/sibyl2/tree/master/pkg/extractor)
-- 更多丰富的接口：[server](https://github.com/opensibyl/sibyl2/tree/master/pkg/server)
-
-为节约您的时间，建议先通过 issue 面板沟通。
