@@ -1,0 +1,34 @@
+---
+sidebar_position: 4
+---
+
+# 起源
+
+google 利用静态扫描能力，解析增量代码来推导影响范围，以指导他们的单测：
+
+![](/img/intro-google.png)
+
+也有一些公司正在往这个方向迭代：
+
+- [Github](https://github.com/github/semantic)
+- [Codecov](https://about.codecov.io/smart-automated-test-selection/?utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=opensibyl)
+- ... （一些链接找不到了
+
+国内互联网行业其实在几年前就开始往这个方向思考，只是当时我们并没有察觉我们在做这样的事情。
+大量的平台都需要从源码中提取信息，来辅助决策：
+
+- diff推导
+- 精准测试
+- 个性化静态代码检查
+- 仓库分析
+- 需求影响面
+- ...
+
+而他们之间的功能并不互通，语言也各不相同。如果是支持m门语言、迭代n个工具，我们将需要 m*n 倍的重复工作。这对中后台团队来说是不可接受的。
+
+![](https://user-images.githubusercontent.com/13421694/207398617-ee015eea-b9bd-4b57-8479-4c690246be17.png)
+
+opensibyl计划也脱胎于此。
+
+它来自近几年我们在效能领域上的思考与实践，从不同的、笨重的业务方应用中抽离、重写而成。
+他的目标是提供一个足够可靠的通用抽象层，节约平台开发者在源码信息提取上的重复工作。

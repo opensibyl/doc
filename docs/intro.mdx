@@ -2,117 +2,608 @@
 sidebar_position: 1
 ---
 
-# 关于 opensibyl
+# 关于 OpenSibyl
 
-Bring your plain code alive with tiny effort.
+OpenSibyl 是一个开箱即用的高性能代码分析服务。仅需要一次花费数秒的分析上传，即可将您的仓库源码转换为逻辑结构存储，供您在任意时刻进行读取与使用。
 
-## 这是什么
+![upload](/img/intro-upload.gif)
 
-![](/img/intro-summary.png)
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-一套跨语言、快速、易于使用的静态源码信息提取工具，旨在以开箱即用的方式，为研发流程中的各个阶段提供源代码的逻辑信息。
+<Tabs>
+  <TabItem value="plain" label="源码" default>
 
-你可以用极低的成本，在几秒内将你的整个仓库进行完全的静态解析，并进行存储。开发者可以在之后的任意时间，轻易洞悉某个代码库、某个版本、某个文件、某些行的背后到底代表着什么。
+```java title="sandbox-agent/src/main/java/com/alibaba/jvm/sandbox/agent/SandboxClassLoader.java"
+package com.alibaba.jvm.sandbox.agent;
 
-## 开箱即用
+import java.io.Closeable;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.jar.JarFile;
 
+class SandboxClassLoader extends URLClassLoader {
+    // ...
+    @SuppressWarnings("unused")
+    public void closeIfPossible() {
+        if (this instanceof Closeable) {
+            try {
+                ((Closeable) this).close();
+            } catch (Throwable cause) {
+                // ignore...
+            }
+            return;
+        }
+
+        try {
+            final Object sun_misc_URLClassPath = forceGetDeclaredFieldValue(URLClassLoader.class, "ucp", this);
+            final Object java_util_Collection = forceGetDeclaredFieldValue(sun_misc_URLClassPath.getClass(), "loaders", sun_misc_URLClassPath);
+
+            for (final Object sun_misc_URLClassPath_JarLoader :
+                    ((Collection) java_util_Collection).toArray()) {
+                try {
+                    final JarFile java_util_jar_JarFile = forceGetDeclaredFieldValue(sun_misc_URLClassPath_JarLoader.getClass(), "jar", sun_misc_URLClassPath_JarLoader);
+                    java_util_jar_JarFile.close();
+                } catch (Throwable t) {
+                    // if we got this far, this is probably not a JAR loader so skip it
+                }
+            }
+
+        } catch (Throwable cause) {
+            // ignore...
+        }
+
+    }
+    // ...
+}
 ```
-./sibyl extract --src . --output hello.json
+
+  </TabItem>
+  <TabItem value="function" label="方法">
+
+```json
+{
+    "name": "closeIfPossible",
+    "receiver": "com.alibaba.jvm.sandbox.agent.SandboxClassLoader",
+    "parameters": null,
+    "returns": [
+      {
+        "type": "void",
+        "name": ""
+      }
+    ],
+    "span": {
+      "start": {
+        "row": 88,
+        "column": 4
+      },
+      "end": {
+        "row": 122,
+        "column": 5
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 89,
+        "column": 34
+      },
+      "end": {
+        "row": 122,
+        "column": 5
+      }
+    },
+    "extras": {
+      "annotations": [
+        "@SuppressWarnings(\"unused\")"
+      ],
+      "classInfo": {
+        "annotations": null,
+        "className": "SandboxClassLoader",
+        "packageName": "com.alibaba.jvm.sandbox.agent"
+      }
+    },
+    "lang": "JAVA",
+    "path": "sandbox-agent/src/main/java/com/alibaba/jvm/sandbox/agent/SandboxClassLoader.java",
+    "signature": "com.alibaba.jvm.sandbox.agent.SandboxClassLoader::closeIfPossible||void"
+}
 ```
 
-只需要几秒：
+  </TabItem>
+  <TabItem value="class" label="类">
 
-```
-$ ./sibyl extract --src . --output hello.json
-{"level":"info","ts":1670138890.5306911,"caller":"sibyl2/extract_fs.go:92","msg":"no specific lang found, do the guess in: /Users/fengzhangchi/github_workspace/sibyl2"}
-{"level":"info","ts":1670138890.5596569,"caller":"sibyl2/extract_fs.go:97","msg":"I think it is: GOLANG"}
-{"level":"info","ts":1670138890.5836658,"caller":"core/runner.go:22","msg":"valid file count: 55"}
-{"level":"info","ts":1670138890.6657321,"caller":"sibyl2/extract_fs.go:76","msg":"cost: 135 ms"}
-{"level":"info","ts":1670138890.669896,"caller":"extract/cmd_extract.go:60","msg":"file has been saved to: hello.json"}
-```
-
-你的快照就生成好了。
-
-```json title="hello.json"
+```json
 [
   {
-    "path": "analyze.go",
-    "language": "GOLANG",
-    "type": "func",
-    "units": [
-      {
-        "name": "AnalyzeFuncGraph",
-        "receiver": "",
-        "parameters": [
-          {
-            "type": "[]*extractor.FunctionFileResult",
-            "name": "funcFiles"
-          },
-          {
-            "type": "[]*extractor.SymbolFileResult",
-            "name": "symbolFiles"
-          }
-        ],
-        "returns": [
-          {
-            "type": "*FuncGraph",
-            "name": ""
-          },
-          {
-            "type": "error",
-            "name": ""
-          }
-        ],
-        "span": {
-          "start": {
-            "row": 11,
-            "column": 0
-          },
-          "end": {
-            "row": 80,
-            "column": 1
-          }
-        },
-        "extras": {}
+    "name": "SandboxClassLoader",
+    "module": "com.alibaba.jvm.sandbox.agent",
+    "span": {
+      "start": {
+        "row": 16,
+        "column": 0
+      },
+      "end": {
+        "row": 130,
+        "column": 1
       }
-    ]
-  },
-  ...
+    },
+    "extras": {
+      "annotations": null,
+      "fields": [
+        {
+          "annotations": null,
+          "modifiers": [
+            "private",
+            "final"
+          ],
+          "name": "toString",
+          "type": "String"
+        },
+        {
+          "annotations": null,
+          "modifiers": [
+            "private",
+            "final"
+          ],
+          "name": "path",
+          "type": "String"
+        }
+      ]
+    },
+    "lang": "JAVA",
+    "path": "sandbox-agent/src/main/java/com/alibaba/jvm/sandbox/agent/SandboxClassLoader.java"
+  }
 ]
 ```
 
+  </TabItem>
+  <TabItem value="funcctx" label="引用链">
+
+```json
+{
+    "name": "closeIfPossible",
+    "receiver": "com.alibaba.jvm.sandbox.agent.SandboxClassLoader",
+    "parameters": null,
+    "returns": [
+      {
+        "type": "void",
+        "name": ""
+      }
+    ],
+    "span": {
+      "start": {
+        "row": 88,
+        "column": 4
+      },
+      "end": {
+        "row": 122,
+        "column": 5
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 89,
+        "column": 34
+      },
+      "end": {
+        "row": 122,
+        "column": 5
+      }
+    },
+    "extras": {
+      "annotations": [
+        "@SuppressWarnings(\"unused\")"
+      ],
+      "classInfo": {
+        "annotations": null,
+        "className": "SandboxClassLoader",
+        "packageName": "com.alibaba.jvm.sandbox.agent"
+      }
+    },
+    "lang": "JAVA",
+    "path": "sandbox-agent/src/main/java/com/alibaba/jvm/sandbox/agent/SandboxClassLoader.java",
+    "calls": [
+      "com.alibaba.jvm.sandbox.api.http.printer.Printer::close||void",
+      "com.alibaba.jvm.sandbox.agent.SandboxClassLoader::forceGetDeclaredFieldValue|Class<?>,String,Object|<T>",
+      "com.alibaba.jvm.sandbox.api.http.printer.ConcurrentLinkedQueuePrinter::close||void"
+    ],
+    "reverseCalls": [
+      "com.alibaba.jvm.sandbox.core.manager.impl.DefaultCoreModuleManager::closeModuleJarClassLoaderIfNecessary|ClassLoader|void",
+      "com.alibaba.jvm.sandbox.agent.AgentLauncher::uninstall|String|void",
+      "com.alibaba.jvm.sandbox.core.manager.impl.ModuleJarLoader::load|ModuleLoadCallback|void"
+    ]
+}
+```
+</TabItem>
+</Tabs>
+
+当然他是跨语言的，且无需编译。
+
+<Tabs>
+<TabItem value="plain" label="源码">
+
+```go title="./extract.go"
+package sibyl2
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/opensibyl/sibyl2/pkg/core"
+	"github.com/opensibyl/sibyl2/pkg/extractor"
+)
+
+// ExtractConfig todo: should not use config ptr for parallel running
+type ExtractConfig struct {
+	LangType    core.LangType
+	ExtractType extractor.ExtractType
+	FileFilter  func(path string) bool
+}
+
+func DefaultConfig() *ExtractConfig {
+	return &ExtractConfig{}
+}
+
+func ExtractFromString(content string, config *ExtractConfig) (*extractor.FileResult, error) {
+	return ExtractFromBytes([]byte(content), config)
+}
+
+// ...
+```
+
+</TabItem>
+<TabItem value="function" label="方法">
+
+```json
+[
+  {
+    "name": "DefaultConfig",
+    "receiver": "",
+    "parameters": null,
+    "returns": null,
+    "span": {
+      "start": {
+        "row": 18,
+        "column": 0
+      },
+      "end": {
+        "row": 20,
+        "column": 1
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 18,
+        "column": 36
+      },
+      "end": {
+        "row": 20,
+        "column": 1
+      }
+    },
+    "extras": {},
+    "lang": "GOLANG",
+    "path": "extract.go",
+    "signature": "::DefaultConfig||"
+  },
+  {
+    "name": "ExtractFromBytes",
+    "receiver": "",
+    "parameters": [
+      {
+        "type": "[]byte",
+        "name": "content"
+      },
+      {
+        "type": "*ExtractConfig",
+        "name": "config"
+      }
+    ],
+    "returns": [
+      {
+        "type": "*extractor.FileResult",
+        "name": ""
+      },
+      {
+        "type": "error",
+        "name": ""
+      }
+    ],
+    "span": {
+      "start": {
+        "row": 26,
+        "column": 0
+      },
+      "end": {
+        "row": 69,
+        "column": 1
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 26,
+        "column": 92
+      },
+      "end": {
+        "row": 69,
+        "column": 1
+      }
+    },
+    "extras": {},
+    "lang": "GOLANG",
+    "path": "extract.go",
+    "signature": "::ExtractFromBytes|[]byte,*ExtractConfig|*extractor.FileResult,error"
+  },
+  {
+    "name": "ExtractFromString",
+    "receiver": "",
+    "parameters": [
+      {
+        "type": "string",
+        "name": "content"
+      },
+      {
+        "type": "*ExtractConfig",
+        "name": "config"
+      }
+    ],
+    "returns": [
+      {
+        "type": "*extractor.FileResult",
+        "name": ""
+      },
+      {
+        "type": "error",
+        "name": ""
+      }
+    ],
+    "span": {
+      "start": {
+        "row": 22,
+        "column": 0
+      },
+      "end": {
+        "row": 24,
+        "column": 1
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 22,
+        "column": 93
+      },
+      "end": {
+        "row": 24,
+        "column": 1
+      }
+    },
+    "extras": {},
+    "lang": "GOLANG",
+    "path": "extract.go",
+    "signature": "::ExtractFromString|string,*ExtractConfig|*extractor.FileResult,error"
+  }
+]
+```
+
+</TabItem>
+<TabItem value="class" label="类">
+
+```json
+[
+  {
+    "name": "ExtractConfig",
+    "module": "sibyl2",
+    "span": {
+      "start": {
+        "row": 12,
+        "column": 5
+      },
+      "end": {
+        "row": 16,
+        "column": 1
+      }
+    },
+    "extras": {
+      "fields": [
+        {
+          "name": "LangType",
+          "type": "core.LangType"
+        },
+        {
+          "name": "ExtractType",
+          "type": "extractor.ExtractType"
+        },
+        {
+          "name": "FileFilter",
+          "type": "func(path string) bool"
+        }
+      ]
+    },
+    "lang": "GOLANG",
+    "path": "extract.go"
+  }
+]
+```
+
+</TabItem>
+<TabItem value="funcctx" label="引用链">
+
+```json
+[
+  {
+    "name": "DefaultConfig",
+    "receiver": "",
+    "parameters": null,
+    "returns": null,
+    "span": {
+      "start": {
+        "row": 18,
+        "column": 0
+      },
+      "end": {
+        "row": 20,
+        "column": 1
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 18,
+        "column": 36
+      },
+      "end": {
+        "row": 20,
+        "column": 1
+      }
+    },
+    "extras": {},
+    "lang": "GOLANG",
+    "path": "extract.go",
+    "calls": [],
+    "reverseCalls": [
+      "::affectedLines2Functions|string,*ext.AffectedLineMap|*ParseResult,error"
+    ]
+  },
+  {
+    "name": "ExtractFromBytes",
+    "receiver": "",
+    "parameters": [
+      {
+        "type": "[]byte",
+        "name": "content"
+      },
+      {
+        "type": "*ExtractConfig",
+        "name": "config"
+      }
+    ],
+    "returns": [
+      {
+        "type": "*extractor.FileResult",
+        "name": ""
+      },
+      {
+        "type": "error",
+        "name": ""
+      }
+    ],
+    "span": {
+      "start": {
+        "row": 26,
+        "column": 0
+      },
+      "end": {
+        "row": 69,
+        "column": 1
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 26,
+        "column": 92
+      },
+      "end": {
+        "row": 69,
+        "column": 1
+      }
+    },
+    "extras": {},
+    "lang": "GOLANG",
+    "path": "extract.go",
+    "calls": [
+      "*Extractor::ExtractCalls|[]*core.Unit|[]*object.Call,error",
+      "*Extractor::ExtractFunctions|[]*core.Unit|[]*object.Function,error",
+      "*Extractor::ExtractSymbols|[]*core.Unit|[]*object.Symbol,error",
+      "LangType::IsSupported||bool",
+      "::NewParser|LangType|",
+      "*Extractor::ExtractFunctions|[]*core.Unit|[]*object.Function,error",
+      "::GetExtractor|core.LangType|Extractor",
+      "*Extractor::ExtractFunctions|[]*core.Unit|[]*object.Function,error",
+      "*Extractor::ExtractCalls|[]*core.Unit|[]*object.Call,error",
+      "*Parser::ParseCtx|[]byte,context.Context|[]*Unit,error",
+      "*Extractor::ExtractSymbols|[]*core.Unit|[]*object.Symbol,error",
+      "::DataTypeOf|[]T|",
+      "*Extractor::ExtractFunctions|[]*core.Unit|[]*object.Function,error",
+      "*Extractor::ExtractCalls|[]*core.Unit|[]*object.Call,error"
+    ],
+    "reverseCalls": [
+      "::ExtractFromString|string,*ExtractConfig|*extractor.FileResult,error"
+    ]
+  },
+  {
+    "name": "ExtractFromString",
+    "receiver": "",
+    "parameters": [
+      {
+        "type": "string",
+        "name": "content"
+      },
+      {
+        "type": "*ExtractConfig",
+        "name": "config"
+      }
+    ],
+    "returns": [
+      {
+        "type": "*extractor.FileResult",
+        "name": ""
+      },
+      {
+        "type": "error",
+        "name": ""
+      }
+    ],
+    "span": {
+      "start": {
+        "row": 22,
+        "column": 0
+      },
+      "end": {
+        "row": 24,
+        "column": 1
+      }
+    },
+    "bodySpan": {
+      "start": {
+        "row": 22,
+        "column": 93
+      },
+      "end": {
+        "row": 24,
+        "column": 1
+      }
+    },
+    "extras": {},
+    "lang": "GOLANG",
+    "path": "extract.go",
+    "calls": [
+      "::ExtractFromBytes|[]byte,*ExtractConfig|*extractor.FileResult,error"
+    ],
+    "reverseCalls": [
+      "::extractFromTree|core.LangType,*object.Tree,func(string) bool,string|bool"
+    ]
+  }
+]
+```
+
+</TabItem>
+</Tabs>
+
 :::tip
-当然不止是golang。支持 [多语言](./faq/faq-lang.mdx)。
+目前我们支持的语言可见 [多语言](./faq/faq-lang.mdx)。
 :::
 
-作为一个底层组件，我们提供了多种使用模式来适应不同严格程度的业务场景。可见 [使用](./usage/usage-intro) 一节。
+- 作为一个底层组件，我们提供了多种部署模式来适应不同严格程度的业务场景。
+- 除此之外，我们也允许开发者单独将其当做命令行工具、golang库使用。
+- 你可以用它构建各种各样神奇的功能，例如：
 
-## 起源
+<video controls width="800">
+  <source src="https://user-images.githubusercontent.com/13421694/207089314-21b0d48d-00d1-4de5-951c-415fed74c78f.mp4"/>
+</video>
 
-google 利用静态扫描能力，解析增量代码来推导影响范围，以指导他们的单测：
-
-![](/img/intro-google.png)
-
-也有一些公司正在往这个方向迭代：
-
-- [Github](https://github.com/github/semantic)
-- [Codecov](https://about.codecov.io/smart-automated-test-selection/?utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=opensibyl)
-- ... （一些链接找不到了
-
-国内互联网行业其实在几年前就开始往这个方向思考，只是当时我们并没有察觉我们在做这样的事情。
-大量的平台都需要从源码中提取信息，来辅助决策：
-
-- diff推导
-- 精准测试
-- 个性化静态代码检查
-- 仓库分析
-- 需求影响面
-- ...
-
-而他们之间的功能并不互通，语言也各不相同。如果是支持m门语言、迭代n个工具，我们将需要 m*n 倍的重复工作。这对中后台团队来说是不可接受的。
-
-![](https://user-images.githubusercontent.com/13421694/207398617-ee015eea-b9bd-4b57-8479-4c690246be17.png)
-
-opensibyl计划也脱胎于此。
-它来自近几年我们在效能领域上的思考与实践，从不同的、笨重的业务方应用中抽离、重写而成。
-他的目标是提供一个足够可靠的通用抽象层，节约平台开发者在源码信息提取上的重复工作。
+- 您可以通过 [常见场景](./idea/idea-intro) 一节了解它的一些实际场景。
+- 快来 [体验](./usage/usage-intro) 吧~

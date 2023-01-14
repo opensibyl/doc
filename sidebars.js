@@ -30,10 +30,22 @@ const sidebars = {
           link: {
             type: 'generated-index',
           },
-          collapsed: false,
+          collapsed: true,
           items: [
-            "usage/usage-prod/deployment/usage-prod-single",
+            {
+              type: 'category',
+              label: "部署",
+              link: {
+                type: 'generated-index',
+              },
+              collapsed: true,
+              items: [
+                "usage/usage-prod/deployment/usage-prod-single",
             "usage/usage-prod/deployment/usage-prod-cluster"
+              ]
+            },
+            "usage/usage-prod/usage-prod-upload",
+            "usage/usage-prod/usage-prod-query",
           ]
         },
         "usage/usage-api",
@@ -56,7 +68,9 @@ const sidebars = {
         type: "generated-index",
       },
       items: [
+        "faq/faq-design",
         "faq/faq-lang",
+        "faq/faq-perf",
         "faq/faq-contrib",
         "faq/faq-others",
       ]

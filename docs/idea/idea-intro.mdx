@@ -10,4 +10,165 @@ sibyl2 的核心目标是作为代码元信息提取层，将一些研发流程�
 这里列出部分使用场景供参考。
 如果您有新的想法，欢迎向仓库提issue或PR。
 
-TODO
+:::tip
+下面所有例子均用 sibyl-go-client 编写，源码可以在 [这里](https://github.com/opensibyl/sibyl2/blob/master/cmd/sibyl/subs/server/cmd_server_scenario_test.go) 找到。
+:::
+
+## 1、逻辑 diff
+
+结合原生的 git diff，用几行代码就可以扩展出一个逻辑级别的 diff 信息。
+
+```go
+// git diff 信息可以直接执行 原生 git diff 命令得到
+const diffPlain = `
+diff --git a/pkg/core/parser.go b/pkg/core/parser.go
+--- a/pkg/core/parser.go
++++ b/pkg/core/parser.go
+@@ -2,6 +2,7 @@ package core
+ 
+ import (
+ 	"context"
++
+ 	sitter "github.com/smacker/go-tree-sitter"
+ )
+`
+
+// 也可以通过利用其他平台API（如gitlab）得到diff信息
+// 转成合理的格式处理即可
+affectedFileMap, err := ext.Unified2Affected([]byte(diffPlain))
+if err != nil {
+    panic(err)
+}
+
+for fileName, lineList := range affectedFileMap {
+    strLineList := make([]string, 0, len(lineList))
+    for _, each := range lineList {
+        strLineList = append(strLineList, strconv.Itoa(each))
+    }
+
+    // 依次按照行，查出这些行对应的引用链与方法信息
+    functionWithPaths, _, err := apiClient.BasicQueryApi.
+        ApiV1FuncctxGet(ctx).
+        Repo(projectName).
+        Rev(head.Hash().String()).
+        File(fileName).
+        Lines(strings.Join(strLineList, ",")).
+        Execute()
+    assert.Nil(t, err)
+    assert.NotEmpty(t, functionWithPaths)
+
+    for _, each := range functionWithPaths {
+        // 知悉diff影响哪些方法，以及引用情况
+        core.Log.Infof("file %s hit func %s, ref: %d, refed: %d",
+            fileName, *each.Name, len(each.Calls), len(each.ReverseCalls))
+
+        // 可以进一步查询出被引用方法的信息
+        // 继续下去，可以查询出整个引用链图
+        for _, eachCall := range each.Calls {
+            detail, _, err := apiClient.SignatureQueryApi.
+                ApiV1FuncWithSignatureGet(ctx).
+                Repo(projectName).
+                Rev(head.Hash().String()).
+                Signature(eachCall).
+                Execute()
+            assert.Nil(t, err)
+            core.Log.Infof("call: %v", detail)
+        }
+    }
+}
+```
+
+## 2、全局的函数查询
+
+在许多情况下我们在搜索时并不知道方法存在于哪个文件内。我们也提供了跨文件的查询方案，非常灵活。
+
+```go
+functionWithPaths, _, err := apiClient.RegexQueryApi.
+    ApiV1FuncWithRegexGet(ctx).
+    Repo(projectName).
+    Rev(head.Hash().String()).
+    // 查询 name 字段中 符合下列正则匹配式的函数
+    Field("name").
+    Regex(".*Handle.*").
+    Execute()
+assert.Nil(t, err)
+assert.NotEmpty(t, functionWithPaths)
+
+for _, each := range functionWithPaths {
+    assert.True(t, strings.Contains(*each.Name, "Handle"))
+}
+```
+
+它可以匹配任何字段。例如，java中的注解。首先我们随便查一个java函数，可以看到它的结构：
+
+```json
+{
+    "name": "closeIfPossible",
+    "receiver": "com.alibaba.jvm.sandbox.agent.SandboxClassLoader",
+    "parameters": null,
+    "returns": [
+      {
+        "type": "void",
+        "name": ""
+      }
+    ],
+    "extras": {
+      "annotations": [
+        "@SuppressWarnings(\"unused\")"
+      ],
+      "classInfo": {
+        "annotations": null,
+        "className": "SandboxClassLoader",
+        "packageName": "com.alibaba.jvm.sandbox.agent"
+      }
+    },
+    "lang": "JAVA",
+    "path": "sandbox-agent/src/main/java/com/alibaba/jvm/sandbox/agent/SandboxClassLoader.java",
+    "calls": [
+      "com.alibaba.jvm.sandbox.api.http.printer.Printer::close||void",
+      "com.alibaba.jvm.sandbox.agent.SandboxClassLoader::forceGetDeclaredFieldValue|Class<?>,String,Object|<T>",
+      "com.alibaba.jvm.sandbox.api.http.printer.ConcurrentLinkedQueuePrinter::close||void"
+    ],
+    "reverseCalls": [
+      "com.alibaba.jvm.sandbox.core.manager.impl.DefaultCoreModuleManager::closeModuleJarClassLoaderIfNecessary|ClassLoader|void",
+      "com.alibaba.jvm.sandbox.agent.AgentLauncher::uninstall|String|void",
+      "com.alibaba.jvm.sandbox.core.manager.impl.ModuleJarLoader::load|ModuleLoadCallback|void"
+    ]
+}
+```
+
+可以发现他的注解是放在 extras.annotations 下的，那么：
+
+```go
+functionWithPaths, _, err := apiClient.RegexQueryApi.
+    ApiV1FuncWithRegexGet(ctx).
+    Repo(projectName).
+    Rev(head.Hash().String()).
+    // 查询注解中包含 Test 字样的函数
+    Field("extras.annotations").
+    Regex(".*Test.*").
+    Execute()
+```
+
+其他字段只要利用同样的规则查询即可。
+由于不同语言的extras字段各不相同，可以结合实际查出来的函数信息指定您的查询规则。
+
+## 3、冷热函数查询
+
+基于上一点我们可以全局搜索函数，那必然我们可以基于此做一些更高级的封装。例如查询引用次数超过一定数量的函数？
+
+```go
+fc, _, err := apiClient.ReferenceQueryApi.
+    ApiV1FuncctxWithReferencedCountGet(ctx).
+    Repo(projectName).
+    Rev(head.Hash().String()).
+    MoreThan(10).
+    LessThan(100).
+    Execute()
+assert.Nil(t, err)
+assert.NotEmpty(t, fc)
+```
+
+## ...
+
+OpenSibyl 的唯一限制是想象力。等你来补充 ：）

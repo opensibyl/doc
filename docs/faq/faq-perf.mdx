@@ -1,0 +1,19 @@
+# 性能
+
+我们为每个支持的语言都选择一个热门仓库进行性能评测。数据可见：
+
+https://github.com/opensibyl/sibyl2/actions/workflows/perf.yml
+
+
+| Language | Repo                                               | Cost |
+|----------|----------------------------------------------------|------|
+| Golang   | https://github.com/gin-gonic/gin.git               | ~1s  |
+| Java     | https://github.com/spring-projects/spring-boot.git | ~50s |
+| Python   | https://github.com/psf/requests                    | ~1s  |
+| Kotlin   | https://github.com/square/okhttp                   | ~1s  |
+
+:::tip
+由于java的重载机制衍生了大量的同名方法，这使得在调用链计算上花费了较多时间。
+:::
+
+通常，它可以与您的编译行为在流水线中并行进行，在大多数情况下都远低于编译时长。
