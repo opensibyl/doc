@@ -72,6 +72,7 @@ const sidebars = {
         "faq/faq-lang",
         "faq/faq-perf",
         "faq/faq-contrib",
+        "faq/faq-open",
         "faq/faq-others",
       ]
     }
