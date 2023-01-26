@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'OpenSibyl Project',
-  tagline: 'Bring your plain code alive with tiny effort.',
+  tagline: 'An out-of-box codebase snapshot service, for everyone.',
   url: 'https://opensibyl.github.io',
   baseUrl: '/doc/',
   onBrokenLinks: 'throw',
