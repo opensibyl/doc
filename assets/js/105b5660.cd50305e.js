@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkopensibyl_doc=self.webpackChunkopensibyl_doc||[]).push([[248],{1837:e=>{e.exports=JSON.parse('{"title":"FAQ","slug":"/category/faq","permalink":"/doc/docs/category/faq","navigation":{"previous":{"title":"\u5e38\u89c1\u5e94\u7528","permalink":"/doc/docs/idea/idea-intro"},"next":{"title":"\u8d77\u6e90","permalink":"/doc/docs/faq/faq-design"}}}')}}]);
