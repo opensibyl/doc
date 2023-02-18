@@ -15,54 +15,59 @@
 const sidebars = {
   docs: [
     "intro",
+    "try/try-intro",
     {
-      type: 'category',
-      label: "使用",
+      type: "category",
+      label: "部署服务",
       link: {
-        type: 'doc',
-        id: 'usage/usage-intro'
+        type: "generated-index",
       },
-      collapsed: false,
+      collapsed: true,
       items: [
-        {
-          type: 'category',
-          label: "使用 - 服务化",
-          link: {
-            type: 'generated-index',
-          },
-          collapsed: true,
-          items: [
-            {
-              type: 'category',
-              label: "部署",
-              link: {
-                type: 'generated-index',
-              },
-              collapsed: true,
-              items: [
-                "usage/usage-prod/deployment/usage-prod-single",
-            "usage/usage-prod/deployment/usage-prod-cluster"
-              ]
-            },
-            "usage/usage-prod/usage-prod-upload",
-            "usage/usage-prod/usage-prod-query",
-          ]
-        },
-        "usage/usage-api",
-        "usage/usage-cmd"
-      ]
+        "usage/usage-prod/deployment/usage-prod-single",
+        "usage/usage-prod/deployment/usage-prod-cluster",
+      ],
     },
     {
-      type: 'category',
-      label: "常见应用",
+      type: "category",
+      label: "仓库上传",
       link: {
-        type: "doc",
-        id: "idea/idea-intro"
+        type: "generated-index",
       },
-      items: []
+      collapsed: true,
+      items: [
+        "usage/usage-prod/usage-prod-upload",
+        "usage/usage-prod/usage-prod-upload-connector",
+      ],
     },
     {
-      type: 'category',
+      type: "category",
+      label: "数据访问",
+      link: {
+        type: "generated-index",
+      },
+      collapsed: true,
+      items: [
+        "usage/usage-prod/usage-prod-query-frontend",
+        "usage/usage-prod/usage-prod-query-api",
+        "usage/usage-prod/usage-prod-query-sdk",
+        "idea/idea-intro",
+      ],
+    },
+    {
+      type: "category",
+      label: "实验功能",
+      link: {
+        type: "generated-index",
+      },
+      collapsed: true,
+      items: [
+        "experimental/usage-alone/usage-api",
+        "experimental/usage-alone/usage-cmd",
+      ],
+    },
+    {
+      type: "category",
       label: "FAQ",
       link: {
         type: "generated-index",
@@ -74,9 +79,9 @@ const sidebars = {
         "faq/faq-contrib",
         "faq/faq-open",
         "faq/faq-others",
-      ]
-    }
-  ]
+      ],
+    },
+  ],
 };
 
 module.exports = sidebars;

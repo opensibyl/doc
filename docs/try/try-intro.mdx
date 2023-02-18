@@ -1,0 +1,71 @@
+# 3分钟快速体验
+
+作为一个工程效能产品，在起初规划时我们花了不少力气在 startup 体验上。
+
+我们所有的功能都封装在一个二进制文件中分发。你可以在办公机器直接体验，而不需要任何中间件、docker预装。
+
+## 部署
+
+你可以在 release 页面上下载到你需要的二进制文件。
+
+https://github.com/opensibyl/sibyl2/releases
+
+```
+./sibyl server
+```
+
+即部署完成。
+
+```text
+# williamfzc @ williamfzcdeMacBook-Pro in ~/github_workspace/sibyl2 on git:master x [16:38:33] C:137
+$ ./sibyl2_0.14.3_darwin_amd64 server
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+```
+
+## 上传
+
+```
+./sibyl upload --src <你的仓库路径>
+```
+
+即上传完成。
+
+```text
+{"level":"info","ts":1676709644.783852,"caller":"upload/execute.go:383","msg":"upload batch: 0 - 50"}
+{"level":"info","ts":1676709644.7873769,"caller":"upload/execute.go:383","msg":"upload batch: 50 - 100"}
+{"level":"info","ts":1676709644.7911198,"caller":"upload/execute.go:383","msg":"upload batch: 100 - 150"}
+{"level":"info","ts":1676709644.792691,"caller":"upload/execute.go:63","msg":"upload finished"}
+{"level":"info","ts":1676709644.79273,"caller":"upload/execute.go:42","msg":"upload total cost: 638 ms"}
+```
+
+:::info
+目前支持的语言可见：[这里](../faq/faq-lang)。如果您本地没有仓库，也可以用我们的主仓来体验：
+
+```
+git clone https://github.com/opensibyl/sibyl2.git
+./sibyl upload --src ./sibyl2
+```
+:::
+
+## 使用
+
+我们提供了一个简单的内置dashboard用于数据可视化：
+
+```bash
+./sibyl frontend
+```
+
+启动后打开 `localhost:3000` 即可查阅你刚刚上传的逻辑结构：
+
+![](/img/frontend.gif)
+
+:::info
+当然大部分情况下，我们的数据是通过接口、SDK对外暴露并使用的。
+
+![](/img/intro-swagger-resp.png)
+
+如果您感兴趣，可以阅读下个章节查看在生产维度下如何使用。
+:::

@@ -1,0 +1,21 @@
+# webhook 模式
+
+该模式最初被设计用于无流水线的情况，也可称为仓库驱动模式。
+如果您需要在更早的时候获取快照信息（如辅助merge request做决策、code review等），可以利用此法将采集阶段前置到代码提交时。
+
+![](/img/upload_webhook.png)
+
+它将由 [git-connector](https://github.com/opensibyl/git-connector) 直接接收仓库的 webhook ，并拉取代码、分析后上传。
+
+## 用法
+
+- 额外部署 [git-connector](https://github.com/opensibyl/git-connector#usage) 
+- 将其链接到 sibyl2
+- 在您的仓库中配置 webhook 到 git-connector
+
+此时就拥有一个与代码仓库同步更新的快照仓库了。
+
+## 特点
+
+- 上传时机更早，频率更高，能够赋能更多场景
+- 分析成本从流水线转移到 connector，可结合情况弹性伸缩

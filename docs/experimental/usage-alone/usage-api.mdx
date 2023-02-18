@@ -1,0 +1,19 @@
+---
+sidebar_position: 3
+---
+
+# 直接使用 golang api
+
+你可以像正常使用 go 包一样使用它，如果您不想用我们的服务与部署能力。
+
+```bash
+go get -u github.com/opensibyl/sibyl2
+```
+
+## 如果想轻度定制
+
+例如为您的团队封装一个公司内部使用的上传器，可以参考：https://github.com/opensibyl/git-connector 。
+
+## 如果想深度定制
+
+例如只想利用 sibyl2 的推理功能，可以参考源码 `cmd/sibyl/subs/diff` 目录下，我们的离线版diff。
