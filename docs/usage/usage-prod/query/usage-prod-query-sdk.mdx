@@ -1,0 +1,78 @@
+# 通过 SDK（推荐）
+
+在正式使用中，接口与前端只能让你知道平台有这么些数据，要用好数据、封好产品还得靠 SDK。
+
+## 快速开始
+
+### golang
+
+安装：
+
+```bash
+go get -u github.com/opensibyl/sibyl-go-client
+```
+
+连接到 sibyl2：
+
+```go
+func Test_openapi_DefaultApiService(t *testing.T) {
+    configuration := openapi.NewConfiguration()
+    configuration.Scheme = "http"
+    configuration.Host = "127.0.0.1:9876"
+    apiClient := openapi.NewAPIClient(configuration)
+    
+    t.Run("Test DefaultApiService ApiV1FileGet", func (t *testing.T) {
+        resp, httpRes, err := apiClient.DefaultApi.ApiV1FileGet(context.Background()).Repo("your repo").Rev("your rev").Execute()
+        
+        require.Nil(t, err)
+        require.NotNil(t, resp)
+        assert.Equal(t, 200, httpRes.StatusCode)
+    })
+}
+```
+
+### java
+
+安装请参考：https://jitpack.io/#opensibyl/sibyl-java-client
+
+连接到 sibyl2：
+
+```java
+import com.github.opensibyl.client.ApiClient;
+import com.github.opensibyl.client.ApiException;
+import com.github.opensibyl.client.Configuration;
+import com.github.opensibyl.client.models.*;
+import com.github.opensibyl.client.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost:9876");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    String repo = "repo_example"; // String | repo
+    String rev = "rev_example"; // String | rev
+    try {
+      List<String> result = apiInstance.apiV1FileGet(repo, rev);
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling DefaultApi#apiV1FileGet");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+## 实际例子
+
+- 我们提供了 swagger 文档，可以在 [通过http接口](./usage-prod-query-api) 一节中查询到。
+- 但 API 数量与维度众多，对于初次接触的同学并不友好。
+- 对此我们也提供了一些真实的落地例子，您可以在 [idea一节](../../../idea/idea-intro) 中学会如何利用SDK开发一些真实的功能。
+
+## 相关仓库
+
+- golang：https://github.com/opensibyl/sibyl-go-client
+- java：https://github.com/opensibyl/sibyl-java-client

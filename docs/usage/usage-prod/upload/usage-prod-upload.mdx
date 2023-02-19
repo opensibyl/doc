@@ -6,8 +6,14 @@
 
 在仓库目录下执行：
 
-```
+```bash
 ./sibyl upload
+
+# 不过通常情况下服务器不会部署在本地
+./sibyl upload --url http://12.34.56.78:9876
+
+# 仓库也可能不在当前目录
+./sibyl upload --src /tmp/some/place --url http://12.34.56.78:9876
 ```
 
 看到下列日志即可代表上传完成。

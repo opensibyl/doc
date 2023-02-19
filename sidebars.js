@@ -18,42 +18,52 @@ const sidebars = {
     "try/try-intro",
     {
       type: "category",
-      label: "部署服务",
+      label: "使用",
       link: {
         type: "generated-index",
       },
-      collapsed: true,
       items: [
-        "usage/usage-prod/deployment/usage-prod-single",
-        "usage/usage-prod/deployment/usage-prod-cluster",
+        {
+          type: "category",
+          label: "部署服务",
+          link: {
+            type: "generated-index",
+          },
+          collapsed: true,
+          items: [
+            "usage/usage-prod/deployment/usage-prod-single",
+            "usage/usage-prod/deployment/usage-prod-cluster",
+          ],
+        },
+        {
+          type: "category",
+          label: "仓库上传",
+          link: {
+            type: "generated-index",
+          },
+          collapsed: true,
+          items: [
+            "usage/usage-prod/upload/usage-prod-upload",
+            "usage/usage-prod/upload/usage-prod-upload-connector",
+          ],
+        },
+        {
+          type: "category",
+          label: "数据访问",
+          link: {
+            type: "generated-index",
+          },
+          collapsed: true,
+          items: [
+            "usage/usage-prod/query/usage-prod-query-sdk",
+            "usage/usage-prod/query/usage-prod-query-frontend",
+            "usage/usage-prod/query/usage-prod-query-api",
+            "idea/idea-intro",
+          ],
+        },
       ],
     },
-    {
-      type: "category",
-      label: "仓库上传",
-      link: {
-        type: "generated-index",
-      },
-      collapsed: true,
-      items: [
-        "usage/usage-prod/usage-prod-upload",
-        "usage/usage-prod/usage-prod-upload-connector",
-      ],
-    },
-    {
-      type: "category",
-      label: "数据访问",
-      link: {
-        type: "generated-index",
-      },
-      collapsed: true,
-      items: [
-        "usage/usage-prod/usage-prod-query-frontend",
-        "usage/usage-prod/usage-prod-query-api",
-        "usage/usage-prod/usage-prod-query-sdk",
-        "idea/idea-intro",
-      ],
-    },
+
     {
       type: "category",
       label: "实验功能",
