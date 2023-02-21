@@ -74,6 +74,7 @@ const sidebars = {
       items: [
         "experimental/usage-alone/usage-api",
         "experimental/usage-alone/usage-cmd",
+        "experimental/usage-alone/tag-system",
       ],
     },
     {
