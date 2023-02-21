@@ -1,0 +1,96 @@
+# 多平台例子
+
+opensibyl 的目标之一是通用性，而业务形态千差万别，如何在支撑极其复杂的业务需求的同时，让系统保持整洁高效。标记系统是我们给出的答案。
+
+## 核心：标记系统
+
+:::info
+机制脱胎于业务。
+:::
+
+![](/img/upload_pipeline.png)
+
+前文我们也提到，目前CI基本已经规范化与体系化，同一次构建同一份代码可能会被数十个插件、平台加工，更别说插件市场里的。
+而这些对于基础平台来说就是海量的定制化需求。
+
+我们在制作sibyl2的前身时，因为无止境的业务需求扩张导致平台膨胀得过于臃肿。
+后来经历一次革新，将sibyl2单独抽离成独立服务，只提供基础数据，业务需求统一由二方服务承接。
+
+![](https://user-images.githubusercontent.com/13421694/220233468-6155f8b4-6c86-43c6-a179-12340f50230f.png)
+
+这样做我们是爽了，但二方平台开发者抱怨颇多：
+
+- 重复开发：平台之间的结果没法传递与复用，例如许多平台可能都需要的spring注解抽取能力，只能每个平台各自去实现一份
+- IO成本高：重复开发带来的大量重复数据IO，平台压力大
+- 不再有消息总线：消息在平台间无法传递，平台失去了原来的 消息总线 地位
+
+我们希望提供一个足够简单的方式：
+
+- 业务之间能够自由传递处理结果，一次处理到处可见
+- 组件分离为基础组件与业务组件，基础组件完成各类基础标识的标记，业务组件利用现成的标记进行上层分析
+
+![](https://user-images.githubusercontent.com/13421694/220233732-0e5d56ff-c191-4a66-8ca5-6b0e555843d4.png)
+
+这就是标记系统的来源。二方平台的开发至此分为两个部分：
+
+- 平台：直接根据标记取用对应的数据，不再需要额外盲查
+- 标记器：如果现有标记难以满足，则可以自定义标记器实现分析规则，供自己使用
+
+而在此基础上，平台也做到了较好的分工：
+
+- sibyl平台只需要支撑好标记能力，而不需要理解标记本身的含义
+- 二方平台可以结合自己需要设计标记，利用标记与sibyl交互
+
+## 使用
+
+标记系统的使用也极其简单。一般有三种场景：
+
+- 直接使用 client 来分析并打标
+- 利用 sibyl2 分析器分析，后利用client打标
+- 利用任何其他工具、平台分析，后利用client打标
+
+下面是一个找到仓库中所有单测方法并打上标的例子：
+
+```golang
+functions, _, err := apiClient.RegexQueryApi.
+    ApiV1RegexFuncGet(ctx).
+    Repo(projectName).
+    Rev(rev).
+    Field("name").
+    Regex("^Test.*").
+    Execute()
+assert.Nil(t, err)
+assert.NotEmpty(t, functions)
+// tag these functions with `TEST_METHOD`
+TagForCases := "TEST_METHOD"
+for _, eachFunc := range functions {
+    eachFuncSign := eachFunc.GetSignature()
+    _, err := apiClient.TagApi.ApiV1TagFuncPost(ctx).Payload(openapi.ServiceTagUpload{
+        RepoId:    &projectName,
+        RevHash:   &rev,
+        Signature: &eachFuncSign,
+        Tag:       &TagForCases,
+    }).Execute()
+    assert.Nil(t, err)
+}
+
+// query
+functionsFromQuery, _, err := apiClient.TagApi.ApiV1TagFuncGet(ctx).Repo(projectName).Rev(rev).Tag(TagForCases).Execute()
+for _, eachFunc := range functionsFromQuery {
+    core.Log.Infof("tag from query: %v", eachFunc)
+}
+assert.Nil(t, err)
+assert.NotEmpty(t, functionsFromQuery)
+assert.Equal(t, len(functions), len(functionsFromQuery))
+```
+
+相应的，如果后续其他平台也需要解析单测用例，则可以直接利用该标识从平台上拉取，而不再需要自己开发一套重复逻辑。
+
+## 一些场景参考：
+
+- 冷热方法系统
+- 微服务接口分析
+- 用例管理
+- 结合 commitmsg 判断方法与哪个需求有关
+- 结合覆盖率标记方法的覆盖情况
+- ...

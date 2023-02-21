@@ -58,9 +58,20 @@ const sidebars = {
             "usage/usage-prod/query/usage-prod-query-sdk",
             "usage/usage-prod/query/usage-prod-query-frontend",
             "usage/usage-prod/query/usage-prod-query-api",
-            "idea/idea-intro",
           ],
         },
+        {
+          type: "category",
+          label: "常见应用",
+          link: {
+            type: "generated-index",
+          },
+          collapsed: true,
+          items: [
+            "usage/usage-prod/real/idea-intro",
+            "usage/usage-prod/real/idea-tag",
+          ],
+        }
       ],
     },
 
@@ -74,7 +85,6 @@ const sidebars = {
       items: [
         "experimental/usage-alone/usage-api",
         "experimental/usage-alone/usage-cmd",
-        "experimental/usage-alone/tag-system",
       ],
     },
     {
