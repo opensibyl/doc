@@ -31,7 +31,7 @@ https://github.com/opensibyl/sibyl2/issues/2
 
 考虑如上，sibyl2的MQ与DB都是可替换的，经过适配即可适应不同的场景。官方内置的开箱即用选型如下：
 
-- DB：TiKV
+- DB：MongoDB
 - MQ：Kafka
 
 ## 使用
@@ -79,18 +79,19 @@ https://github.com/opensibyl/sibyl2/issues/2
 
 ### 替换数据库
 
-TiKV 是TiDB的底层引擎，分布式，非常成熟。可以参考 [tikv-in-5-minutes](https://tikv.org/docs/dev/concepts/tikv-in-5-minutes/#set-up-a-local-tikv-cluster-with-the-default-options) 部署。
-
 部署完成后，你同样只需要微调配置：
 
 ```json
-"binding": {
-    "dbtype": "TIKV",
-    "tikvaddrs": "127.0.0.1:2379"
-},
+{
+  "binding": {
+    "dbtype": "MONGO",
+    "mongodbname": "sibyl2",
+    "mongouri": "mongodb+srv://feng:<YOURPASSWORD>@XXXXXXXX.mongodb.net/test"
+  }
+}
 ```
 
-此刻你的数据将被安全地持久化到TiKV中。
+此刻你的数据将被安全地持久化到MongoDB中。您可以直接基于它做数据分析与使用。
 
 ### 替换kafka（可选）
 
